@@ -86,7 +86,7 @@ namespace ExtendibleHashingFile.DataStructure
                             //Console.WriteLine("Extending directory");
                             Extend();
                             //WriteDirectory();
-                            // prepocitat adresy
+                            // prepocitat adresy<<
                         }
                     }
                     else
