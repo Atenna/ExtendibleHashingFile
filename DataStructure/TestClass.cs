@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace ExtendibleHashingFile.DataStructure
 {
+    // testing class for implementing IRecord and testing the structure
     public class TestClass: IRecord<TestClass>
     {
         public int Key { get; set; }
