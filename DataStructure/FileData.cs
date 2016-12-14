@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace ExtendibleHashingFile.DataStructure
 {
-    public class TableData<T>
+    public class FileData<T>
     {
         public BlockCollection<T> Blocks { get; private set; }
-        public int MaxBlockValues { get; private set; }
+        public int MaxBlockSize { get; private set; }
         public int MaxSiblingMergeBlockValues { get; private set; }
         public int MaxDepth { get; private set; }
         public int MaxUnusedDepth { get; private set; }
 
-        public TableData(Action<int, int> updateIndices, int maxBucketValues, int maxSiblingMergeBucketValues,
+        public FileData(Action<int, int> updateIndices, int maxBucketSize, int maxSiblingMergeBucketValues,
             int maxDepth, int maxUnusedDepth)
         {
             Blocks = new BlockCollection<T>(updateIndices);
-            MaxBlockValues = maxBucketValues;
+            MaxBlockSize = maxBucketSize;
             MaxSiblingMergeBlockValues = maxSiblingMergeBucketValues;
             MaxDepth = maxDepth;
             MaxUnusedDepth = maxUnusedDepth;

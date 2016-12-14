@@ -9,7 +9,18 @@ namespace ExtendibleHashingFile.DataStructure
     public class Record<T>
     {
         // hashed value
-        public int Hash { get; private set; }
-        public T Data { get; private set; }
+        public int Hash { get; set; }
+        public T Data { get; set; }
+
+        public Record(int hash, T data)
+        {
+            Hash = hash;
+            Data = data;
+        }
+
+        public override string ToString()
+        {
+            return Hash + ", " + Data.ToString();
+        }
     }
 }
