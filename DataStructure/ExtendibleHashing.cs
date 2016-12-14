@@ -4,41 +4,29 @@ using ExtendibleHashingFile.Services;
 
 namespace ExtendibleHashingFile.DataStructure
 {
-    public class ExtendibleHashing<T> where T : class, IRecord<T>, new()
+    public class ExtendibleHashing<T>
     {
-        public int MaxBlockSize { get; private set; }
-        public int RecordCount { get; private set; }
-        public int MaxFileDepth { get; private set; }
-        public string FileName { get; private set; }
-        public int BlockSizeInBytes { get; private set; }
+        //public int RecordCount { get; private set; }
+        //public string FileName { get; private set; }
         private HelperReader reader;
         private HelperWriter writer;
         public int CurrentFileDepth { get; private set; }
-        public int BlockCount { get; private set; }
+        //public int BlockCount { get; private set; }
         public int[] Directory;
+        internal enum AddResult { NotAdded = 0, Added, AlreadyExists }
 
-        public ExtendibleHashing(string fileName, int blockSize)
+        private TableData<T> _data;
+
+        public ExtendibleHashing(string fileName, TableData<T> data)
         {
-
-            Directory = new int[2];
-            CurrentFileDepth = 1;
-            FileName = fileName;
-            BlockCount = 2;
-            Block<T> b1 = new Block<T>(blockSize, CurrentFileDepth);
-            Block<T> b2 = new Block<T>(blockSize, CurrentFileDepth);
-            BlockSizeInBytes = b1.Size();
-            MaxBlockSize = blockSize;
-            reader = new HelperReader(fileName);
-            writer = new HelperWriter(fileName);
-
-            MaxFileDepth = 4;
-
-            Directory[0] = 0;
-            Directory[1] = b2.Size();
-
-            // todo zapisu sa do suboru
-            writer.Write(0, b1.ToByteArray());
-            writer.Write(BlockSizeInBytes, b2.ToByteArray());
+            _data = data;
+            
+            Directory = new int[1];
+            CurrentFileDepth = 0;
+            Block<T> b1 = new Block<T>(CurrentFileDepth);
+            Directory[0] = _data.Blocks.Add(b1);
+            
+            //writer.Write(0, b1.ToByteArray());
         }
 
         public int ConvertHashToAdress(BitArray pole, int depthFile)
@@ -254,6 +242,33 @@ namespace ExtendibleHashingFile.DataStructure
                 }
             }
             return ret;
+        }
+
+        public bool Contains(T value)
+        {
+            // todo
+            return false;
+        }
+
+        internal void UpdateIndices(int oldIndex, int newIndex)
+        {
+            bool containsIndex = false;
+            for (int i = 0; i < Directory.Length; i++)
+            {
+                if (Directory[i] == newIndex)
+                {
+                    containsIndex = true;
+                    break;
+                }
+            }
+            if (!containsIndex)
+            {
+                for (int i = 0; i < Directory.Length; ++i)
+                {
+                    if (Directory[i] == oldIndex)
+                        Directory[i] = newIndex;
+                }
+            }
         }
 
         public void PrintDirectory()
