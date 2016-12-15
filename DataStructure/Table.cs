@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
+using System.Linq;
 
 namespace ExtendibleHashingFile.DataStructure
 {
-    public class ExtendibleHashing<T>
+    public class Table<T>
     {
         //public int RecordCount { get; private set; }
         //public string FileName { get; private set; }
@@ -17,7 +19,7 @@ namespace ExtendibleHashingFile.DataStructure
         public int Count { get; private set; }
         private readonly FileData<T> _data;
 
-        public ExtendibleHashing(string fileName, FileData<T> data)
+        public Table(FileData<T> data)
         {
             _data = data;
             
@@ -27,6 +29,42 @@ namespace ExtendibleHashingFile.DataStructure
             Directory[0] = _data.Blocks.Add(b1);
             
             //writer.Write(0, b1.ToByteArray());
+        }
+
+        public Table(BinaryReader reader, FileData<T> data, int bucketsCount)
+        {
+            _data = data;
+
+            CurrentFileDepth = reader.ReadInt32();
+            if (CurrentFileDepth < 0 || CurrentFileDepth > ExtendibleHashSet<T>.GlobalMaxDepth)
+            {
+                throw new IOException();
+            }
+
+            int indicesCount = 1 << CurrentFileDepth;
+
+            Count = reader.ReadInt32();
+            if (Count < 0 || Count > indicesCount*data.MaxBlockSize)
+            {
+                throw new IOException();
+            }
+
+            Directory = new int[indicesCount];
+            for (int i = 0; i < indicesCount; ++i)
+            {
+                int index = Directory[i] = reader.ReadInt32();
+                if (index < 0 || index >= bucketsCount)
+                {
+                    throw new IOException();
+                }
+            }
+        }
+
+        public bool TryGetEqual(int hash, T value, out T existingValue)
+        {
+            var info = GetRecordInfo(value);
+            var bucket = _data.Blocks.Read(info.BlockIndex);
+            return bucket.TryGetEqual(info.Hash, value, out existingValue);
         }
 
         public int ConvertHashToAdress(BitArray pole, int depthFile)
@@ -50,15 +88,19 @@ namespace ExtendibleHashingFile.DataStructure
         /// </summary>
         /// <param name="data">Record data</param>
         /// <returns>Result from set {AlreadyExists, Added, NotAdded}</returns>
-        public AddResult Add(T data)
+        public AddResult Add(int hash, T data, bool updateIfExists)
         {
             //WriteDirectory();
             var info = GetRecordInfo(data);
             var block = _data.Blocks.Read(info.BlockIndex);
 
             // ak taky zaznam existuje
-            if (block.Contains(info.Hash, data))
+            if (block.Find(hash, data, updateIfExists))
             {
+                if (updateIfExists)
+                {
+                    _data.Blocks.Write(block, info.BlockIndex);
+                }
                 return AddResult.AlreadyExists;
             }
 
@@ -88,6 +130,94 @@ namespace ExtendibleHashingFile.DataStructure
                 // splitovanie bloku
                 Split(ref block, ref info);
             }
+        }
+
+        public bool Remove(int hash, T data, out T existingValue)
+        {
+            var info = GetRecordInfo(data);
+            var block = _data.Blocks.Read(info.BlockIndex);
+
+            if (block.TryRemove(info.Hash, data, out existingValue))
+            {
+                return false;
+            }
+            else
+            {
+                // zniz aktualny pocet zaznamov
+                --Count;
+                // zapis blok
+                _data.Blocks.Write(block, info.BlockIndex);
+
+                // merguj bloky
+                while (true)
+                {
+                    if (!TryMergeBlockSiblings(ref block, info))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        int maxBlockDepth = _data.Blocks.MaxBlockDepth;
+                        while (CurrentFileDepth > maxBlockDepth + _data.MaxUnusedDepth)
+                        {
+                            Reduce(); // zniz hlbku
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
+        private bool TryMergeBlockSiblings(ref Block<T> block, RecordInfo info)
+        {
+            if (block.Depth == 0 || block.Records.Count > _data.MaxSiblingMergeBlockValues)
+            {
+                return false;
+            }
+
+            int blockLocalReferenceIndex = GetBlockIndexIndex(info.Hash, block.Depth);
+            bool isFirstSibling = (blockLocalReferenceIndex & 1) == 0;
+
+            // da naspat adresu podla prveho indexu
+            uint firstReferenceIndex = (uint)blockLocalReferenceIndex << CurrentFileDepth - block.Depth;
+            uint blockReferences = 1u << CurrentFileDepth - block.Depth;
+
+            uint otherBlockReferenceIndex = firstReferenceIndex;
+
+            if (isFirstSibling)
+            {
+                otherBlockReferenceIndex += blockReferences;
+            }
+            else
+            {
+                otherBlockReferenceIndex -= blockReferences;
+            }
+
+            int otherBucketIndex = Directory[otherBlockReferenceIndex];
+            if (Directory[otherBlockReferenceIndex + blockReferences/2] != otherBucketIndex)
+            {
+                return false; // No sibling block
+            }
+
+            var otherBlock = _data.Blocks.Read(otherBucketIndex);
+            if (block.Records.Count + otherBlock.Records.Count > _data.MaxSiblingMergeBlockValues)
+            {
+                return false;
+            }
+
+            var newBlock = new Block<T>(block.Depth - 1);
+            newBlock.Records.AddRange(block.Records.Concat(otherBlock.Records));
+
+            for (uint i = 0; i < blockReferences; ++i)
+            {
+                Directory[i + otherBlockReferenceIndex] = info.BlockIndex;
+            }
+
+            _data.Blocks.Write(newBlock, info.BlockIndex);
+            _data.Blocks.RemoveAt(otherBucketIndex);
+
+            block = newBlock;
+            return true;
         }
 
         /// <summary>
@@ -259,7 +389,7 @@ namespace ExtendibleHashingFile.DataStructure
         }
 
         // todo
-        private bool RemoveBlockIfEmpty()
+        public bool RemoveBlockIfEmpty()
         {
             if (Count > 0)
             {
@@ -285,6 +415,17 @@ namespace ExtendibleHashingFile.DataStructure
                 }
             }
         }
+
+        public void SerializeTo(BinaryWriter writer)
+        {
+            writer.Write(CurrentFileDepth);
+            writer.Write(Count);
+            System.Diagnostics.Debug.Assert(Directory.Length == 1 << CurrentFileDepth);
+            foreach (var index in Directory)
+                writer.Write(index);
+        }
+
+
 
         public void Dispose()
         {

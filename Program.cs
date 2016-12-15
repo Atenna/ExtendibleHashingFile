@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile
 {
@@ -12,9 +11,6 @@ namespace ExtendibleHashingFile
         [STAThread]
         static void Main()
         {
-
-            
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

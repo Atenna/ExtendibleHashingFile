@@ -3,36 +3,38 @@ using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Model
 {
-    public class VinEcvRecord : SerializationHelper<VinEcvRecord>
+    public struct VinEcvRecord
     {
-        public string Vin { get; private set; }
-        public string Ecv { get; private set; }
+        public string Vin { get; set; } // max 17
+        public string Ecv { get; set; } // max 7
 
-        public override bool Equals(object another)
+        public override bool Equals(object obj)
         {
-            if (another == null || another.GetType() != typeof(VinEcvRecord))
-            {
+            if (obj == null || obj.GetType() != typeof(VinEcvRecord))
                 return false;
-            }
 
-            var anotherRecord = (VinEcvRecord) another;
-            return Vin == anotherRecord.Vin;
+            var other = (VinEcvRecord)obj;
+
+            return Vin == other.Vin;
         }
 
         public override int GetHashCode()
         {
             return Vin.GetHashCode();
         }
+    }
 
+    public sealed class VinEcvRecordSerializer : SerializationHelper<VinEcvRecord>
+    {
         public override int BlockSize
         {
-            get { return 7 + 17; }
+            get { return 17 + 7; }
         }
 
-        public override void Serialize(VinEcvRecord data, BinaryWriter writer)
+        public override void Serialize(VinEcvRecord value, BinaryWriter writer)
         {
-            writer.Write(SerializeASCIIStringBytes(data.Vin, 17));
-            writer.Write(SerializeASCIIStringBytes(data.Ecv, 7));
+            writer.Write(SerializeASCIIStringBytes(value.Vin, 17));
+            writer.Write(SerializeASCIIStringBytes(value.Ecv, 7));
         }
 
         public override VinEcvRecord Deserialize(BinaryReader reader)

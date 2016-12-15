@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExtendibleHashingFile.DataStructure
 {
@@ -14,12 +10,12 @@ namespace ExtendibleHashingFile.DataStructure
         public int MaxDepth { get; private set; }
         public int MaxUnusedDepth { get; private set; }
 
-        public FileData(Action<int, int> updateIndices, int maxBucketSize, int maxSiblingMergeBucketValues,
-            int maxDepth, int maxUnusedDepth)
+        public FileData(BlockCollection<T> blocks, int maxBlockValues,
+            int maxSiblingMergeBlockValues, int maxDepth, int maxUnusedDepth)
         {
-            Blocks = new BlockCollection<T>(updateIndices);
-            MaxBlockSize = maxBucketSize;
-            MaxSiblingMergeBlockValues = maxSiblingMergeBucketValues;
+            Blocks = blocks;
+            MaxBlockSize = maxBlockValues;
+            MaxSiblingMergeBlockValues = maxSiblingMergeBlockValues;
             MaxDepth = maxDepth;
             MaxUnusedDepth = maxUnusedDepth;
         }

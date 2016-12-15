@@ -4,17 +4,17 @@ using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Model
 {
-    public class CarRecord : SerializationHelper<CarRecord>
+    public class CarRecord
     {
-        public string Ecv { get; private set; } // 7
-        public string Vin { get; private set; }
-        public int NumOfWheels { get; private set; }
-        public int Weight { get; private set; }
+        public string Ecv { get; set; } // 7
+        public string Vin { get; set; }
+        public int NumOfWheels { get; set; }
+        public int Weight { get; set; }
 
-        public bool IsStolen { get; private set; }
-        public DateTime EndOfStk { get; private set; }
+        public bool IsStolen { get; set; }
+        public DateTime EndOfStk { get; set; }
 
-        public DateTime EndOfEk { get; private set; }
+        public DateTime EndOfEk { get; set; }
 
         public CarRecord()
         {
@@ -39,21 +39,24 @@ namespace ExtendibleHashingFile.Model
         {
             return Ecv.GetHashCode();
         }
+    }
 
+    public sealed class CarRecordSerializer : SerializationHelper<CarRecord>
+    {
         public override int BlockSize
         {
             get { return 7 + 17 + 4 + 4 + 1 + 8 + 8; }
         }
 
-        public override void Serialize(CarRecord data, BinaryWriter writer)
+        public override void Serialize(CarRecord value, BinaryWriter writer)
         {
-            writer.Write(SerializeASCIIStringBytes(data.Ecv, 7));
-            writer.Write(SerializeASCIIStringBytes(data.Vin, 17));
-            writer.Write(data.NumOfWheels);
-            writer.Write(data.Weight);
-            writer.Write(data.IsStolen);
-            writer.Write(data.EndOfStk.ToBinary());
-            writer.Write(data.EndOfEk.ToBinary());
+            writer.Write(SerializeASCIIStringBytes(value.Ecv, 7));
+            writer.Write(SerializeASCIIStringBytes(value.Vin, 17));
+            writer.Write(value.NumOfWheels);
+            writer.Write(value.Weight);
+            writer.Write(value.IsStolen);
+            writer.Write(value.EndOfStk.ToBinary());
+            writer.Write(value.EndOfEk.ToBinary());
         }
 
         public override CarRecord Deserialize(BinaryReader reader)
@@ -70,6 +73,4 @@ namespace ExtendibleHashingFile.Model
             };
         }
     }
-
-    
 }

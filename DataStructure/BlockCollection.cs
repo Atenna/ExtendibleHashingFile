@@ -1,53 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace ExtendibleHashingFile.DataStructure
 {
     public class BlockCollection<T>
     {
-        readonly List<Block<T>> _buckets = new List<Block<T>>();
-        readonly int[] _bucketsWithDepths = new int[32 + 1];
-        readonly Action<int, int> _updateIndices; //delegatik
+        private readonly IBlockStorage<T> _storage;
+        readonly int[] _blocksWithDepths = new int[32 + 1];
 
-        internal Block<T> Read(int index)
+        public Block<T> Read(int index)
         {
-            return _buckets[index];
+            return _storage.Read(index);
         }
 
-        internal void Write(Block<T> bucket, int index)
+        public void Write(Block<T> block, int index)
         {
-            --_bucketsWithDepths[_buckets[index].Depth];
-            _buckets[index] = bucket;
-            ++_bucketsWithDepths[bucket.Depth];
+            --_blocksWithDepths[_storage.ReadDepth(index)];
+            _storage.Write(block, index);
+            ++_blocksWithDepths[block.Depth];
         }
 
-        internal int Add(Block<T> bucket)
+        public int Add(Block<T> block)
         {
-            _buckets.Add(bucket);
-            ++_bucketsWithDepths[bucket.Depth];
-            return _buckets.Count - 1;
+            int newIndex = _storage.Add(block);
+            ++_blocksWithDepths[block.Depth];
+            return newIndex;
         }
 
-        internal void RemoveAt(int index)
+        public void RemoveAt(int index)
         {
-            int lastIndex = _buckets.Count - 1;
-
-            --_bucketsWithDepths[_buckets[index].Depth];
-            _buckets[index] = _buckets[lastIndex];
-            _buckets.RemoveAt(lastIndex);
-            _updateIndices(lastIndex, index);
+            --_blocksWithDepths[_storage.ReadDepth(index)];
+            _storage.RemoveAt(index);
         }
 
-        internal int MaxBucketDepth
+        public int MaxBlockDepth
         {
             get
             {
-                for (int i = _bucketsWithDepths.Length - 1; i > 0; --i)
+                for (int i = _blocksWithDepths.Length - 1; i > 0; --i)
                 {
-                    if (_bucketsWithDepths[i] > 0)
+                    if (_blocksWithDepths[i] > 0)
                         return i;
                 }
 
@@ -55,9 +48,32 @@ namespace ExtendibleHashingFile.DataStructure
             }
         }
 
-        internal BlockCollection(Action<int, int> updateIndices)
+        public BlockCollection(IBlockStorage<T> storage)
         {
-            _updateIndices = updateIndices;
+            _storage = storage;
+        }
+
+        public void SerializeTo(BinaryWriter writer)
+        {
+            foreach (var count in _blocksWithDepths)
+            {
+                writer.Write(count);
+            }
+        }
+
+        // Deserialize constructor
+        public BlockCollection(IBlockStorage<T> storage, BinaryReader reader)
+        {
+            _storage = storage;
+
+            for (int i = 0; i < _blocksWithDepths.Length; ++i)
+            {
+                int count = _blocksWithDepths[i] = reader.ReadInt32();
+                if (count < 0 || count > storage.Count)
+                {
+                    throw new IOException();
+                }
+            }
         }
     }
 }
