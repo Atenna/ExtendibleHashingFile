@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using ExtendibleHashingFile.Services;
 
 namespace ExtendibleHashingFile.DataStructure
 {
@@ -8,16 +7,17 @@ namespace ExtendibleHashingFile.DataStructure
     {
         //public int RecordCount { get; private set; }
         //public string FileName { get; private set; }
-        private HelperReader reader;
-        private HelperWriter writer;
+        //private HelperReader reader;
+        //private HelperWriter writer;
         public int CurrentFileDepth { get; private set; }
         //public int BlockCount { get; private set; }
         public int[] Directory;
-        internal enum AddResult { NotAdded = 0, Added, AlreadyExists }
 
-        private TableData<T> _data;
+        public enum AddResult { NotAdded = 0, Added, AlreadyExists }
+        public int Count { get; private set; }
+        private readonly FileData<T> _data;
 
-        public ExtendibleHashing(string fileName, TableData<T> data)
+        public ExtendibleHashing(string fileName, FileData<T> data)
         {
             _data = data;
             
@@ -45,65 +45,54 @@ namespace ExtendibleHashingFile.DataStructure
             return index;
         }
 
-        public bool Add(T record)
+        /// <summary>
+        /// Adding new record.
+        /// </summary>
+        /// <param name="data">Record data</param>
+        /// <returns>Result from set {AlreadyExists, Added, NotAdded}</returns>
+        public AddResult Add(T data)
         {
             //WriteDirectory();
-            bool isInserted = false;
-            BitArray hash = record.HashCode();
+            var info = GetRecordInfo(data);
+            var block = _data.Blocks.Read(info.BlockIndex);
 
-            while (!isInserted)
+            // ak taky zaznam existuje
+            if (block.Contains(info.Hash, data))
+            {
+                return AddResult.AlreadyExists;
+            }
+
+            while (true)
             {
 
-                int index = ConvertHashToAdress(hash, CurrentFileDepth); // index bloku, na ktory chcem vkladat
-                //Console.WriteLine("Vkladam zaznam " + record.ToString() + " na index " + index);
-                byte[] data = reader.ReadBlock(Directory[index], BlockSizeInBytes); // nacitanie dat bloku
-                Block<T> b = new Block<T>(MaxBlockSize, CurrentFileDepth); // do tohto bloku chcem vkladat
-                b.FromByteArray(data);
-
-                if (b.MaxRecordCount == b.Count)
+                if (block.Records.Count < _data.MaxBlockSize)
                 {
-
-                    if (CurrentFileDepth == b.Depth)
-                    {
-                        if (CurrentFileDepth == MaxFileDepth)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            //Console.WriteLine("Extending directory");
-                            Extend();
-                            //WriteDirectory();
-                            // prepocitat adresy<<
-                        }
-                    }
-                    else
-                    {
-                        //Console.WriteLine("Splitting directory");
-                        Split(b, index);
-                        //WriteDirectory();
-                        //WriteBlock(b, index);
-                    }
-                    
+                    // je miesto v bloku
+                    Record<T> record = new Record<T>(info.Hash, data);
+                    block.Records.Add(record);
+                    // zapis
+                    _data.Blocks.Write(block, info.BlockIndex);
+                    ++Count;
+                    return AddResult.Added;
                 }
-                else
+
+                if (block.Depth == CurrentFileDepth)
                 {
-                    b.Add(record);
-                    
-                    //Console.WriteLine("After insert");
-                    //WriteBlock(b, index);
-
-                    writer.Write(Directory[index], b.ToByteArray());
-                    RecordCount++;
-                    isInserted = true;
-
-                    Console.WriteLine("___________________________");
-                    PrintDirectory();
+                    if (block.Depth == _data.MaxDepth)
+                    {
+                        return AddResult.NotAdded;
+                    }
+                    // treba extendovat
+                    Extend();
                 }
+                // splitovanie bloku
+                Split(ref block, ref info);
             }
-            return isInserted;
         }
 
+        /// <summary>
+        /// Debug method. Printing the Directory - only for depth check
+        /// </summary>
         private void WriteDirectory()
         {
             string print = "";
@@ -114,75 +103,46 @@ namespace ExtendibleHashingFile.DataStructure
             Console.WriteLine(print);
         }
 
-        private void Split(Block<T> blockToSplit, int index)
+        private void Split(ref Block<T> blockToSplit, ref RecordInfo info)
         {
-            int address = Directory[index];
+            int address = Directory[info.BlockIndex];
+            int newDepth = blockToSplit.Depth + 1;
 
-            Block<T> newBlock = new Block<T>(MaxBlockSize, ++blockToSplit.Depth);
+            Block<T> newBlock1 = new Block<T>(newDepth);
+            Block<T> newBlock2 = new Block<T>(newDepth);
 
-            OrderRecords(blockToSplit, newBlock);
-
-            int newAddress = BlockCount*BlockSizeInBytes;
-            BlockCount++;
-
-            int blocksToReindex = (int)Math.Pow(2, CurrentFileDepth - (newBlock.Depth-1));
-
-            int i = 0;
-            for (i = index; (i >= 0) && (Directory[i] == address); i--){}
-            int first = i+1;
-            for (i = index; (i < Directory.Length) && (Directory[i] == address); i++) { }
-            int last = i-1;
-
-            int mid = (last - first)/2;
-            if (last - first == 1 || last - first == 0)
+            foreach (var record in blockToSplit.Records)
             {
-                Directory[last] = newAddress;
+                bool inFirstBucket = (GetBlockIndexIndex(record.Hash, newDepth) & 1) == 0;
+                (inFirstBucket ? newBlock1 : newBlock2).Records.Add(record);
             }
 
-            else
+            // zapis
+            _data.Blocks.Write(newBlock1, info.BlockIndex);
+            int newIndex2 = _data.Blocks.Add(newBlock2);
+
+            // uprava adries
+            uint firstReferenceIndex = (uint)GetBlockIndexIndex(info.Hash, blockToSplit.Depth) << CurrentFileDepth - blockToSplit.Depth;
+            uint newBlockReferences = 1u << CurrentFileDepth - newDepth; // novy unassigned int :P, count ktory prepise
+            for (uint i = 0; i < newBlockReferences; ++i)
             {
-                for (i = mid + 1; i <= last; i++)
-                {
-                    Directory[i] = newAddress;
-                }
+                Directory[i + firstReferenceIndex + newBlockReferences] = newIndex2;
             }
 
-            writer.Write(newAddress, newBlock.ToByteArray());
-            writer.Write(address, blockToSplit.ToByteArray());
+            // zapise tam adresy prveho alebo druheho bloku, podla toho, ci novy bit je 0 alebo 1 
+            bool valueInFirstBlock = (GetBlockIndexIndex(info.Hash, newDepth) & 1) == 0;
+            blockToSplit = valueInFirstBlock ? newBlock1 : newBlock2;
+            if (!valueInFirstBlock)
+            {
+                info.BlockIndex = newIndex2;
+            }
         }
 
-        private void OrderRecords(Block<T> blockToSplit, Block<T> newBlock)
-        {
-            // zaznamy s novym bitom 0 zostanu v povodnom bloku
-            T[] records = new T[blockToSplit.Records.Length];
-            for (int i = 0; i < records.Length; i++)
-            {
-                records[i] = new T();
-            }
-            int it = 0;
-
-            blockToSplit.Count = 0;
-            newBlock.Count = 0;
-
-            for (int i = 0; i < blockToSplit.Records.Length; i++)
-            {
-                var record = blockToSplit.Records[i];
-                bool bit = record.HashCode()[blockToSplit.Depth-1];
-                if (bit)
-                {
-                    newBlock.Add(record);
-                }
-                else
-                {
-                    records[it] = record;
-                    it++;
-                }
-            }
-
-            blockToSplit.Records = records;
-            blockToSplit.Count = it;
-        }
-
+        /// <summary>
+        /// Reversing BitArray with hashed key for computing the correct index in Directory.
+        /// </summary>
+        /// <param name="array">Hash as BitArray</param>
+        /// <returns>Reversed hash</returns>
         public BitArray Reverse(BitArray array)
         {
            
@@ -200,6 +160,9 @@ namespace ExtendibleHashingFile.DataStructure
             return reversed;
         }
 
+        /// <summary>
+        /// Doubling the Directory if current depth of file == depth of block
+        /// </summary>
         public void Extend()
         {
             int[] newDirectory = new int[Directory.Length * 2];
@@ -213,43 +176,67 @@ namespace ExtendibleHashingFile.DataStructure
             CurrentFileDepth++;
         }
 
-        public void WriteBlock(Block<T> block, int index)
+        /// <summary>
+        /// Decreasing depth of a file. Opposite of Extending the Directory.
+        /// </summary>
+        public void Reduce()
         {
-            Console.WriteLine("Block at [{0}]", index);
-            var records = block.Records;
-            foreach (var r in records)
+            int[] newDirectory = new int[Directory.Length / 2];
+            for (int i = 0; i < newDirectory.Length; i++)
             {
-                Console.WriteLine("[{0}] ", r.ToString());
+                newDirectory[i] = Directory[i*2];
             }
-            Console.WriteLine("");
+            Directory = newDirectory;
+            CurrentFileDepth--;
         }
 
         public string SearchKey(T record)
         {
-            string ret = "";
-            for (int i = 0; i < Directory.Length; i++)
+            if (Contains(record))
             {
-                byte[] data = reader.ReadBlock(Directory[i], BlockSizeInBytes); // nacitanie dat bloku
-                Block<T> b = new Block<T>(MaxBlockSize, CurrentFileDepth); // do tohto bloku chcem vkladat
-                b.FromByteArray(data);
-                var records = b.Records;
-                for (int j = 0; j < records.Length; j++)
-                {
-                    if (record.Equal(records[j]))
-                    {
-                        ret = records[j].ToString() + " | Found at " + Directory[i];
-                    }
-                }
+                var info = GetRecordInfo(record);
+                var bucket = _data.Blocks.Read(info.BlockIndex);
+                var found = bucket.Records[bucket.IndexOf(info.Hash, record)];
+                return found.ToString();
             }
-            return ret;
+            return "Record not found";
         }
 
-        public bool Contains(T value)
+        struct RecordInfo
         {
-            // todo
-            return false;
+            internal int Hash, BlockIndex;
         }
 
+        RecordInfo GetRecordInfo(T data)
+        {
+            int hash = data.GetHashCode();
+            return new RecordInfo
+            {
+                Hash = hash,
+                BlockIndex = Directory[GetBlockIndexIndex(hash,
+                CurrentFileDepth)]
+            };
+        }
+
+        // index bloku v Directory
+        int GetBlockIndexIndex(int hash, int depth)
+        {
+            if (depth == 0)
+            {
+                return 0;
+            }
+
+            return (int)((uint)hash >> 32 - depth);
+        }
+
+        public bool Contains(T data)
+        {
+            var info = GetRecordInfo(data);
+            var block = _data.Blocks.Read(info.BlockIndex);
+            return block.Contains(info.Hash, data);
+        }
+
+        // updatne indexy na nove a stare, ak tam uz novy nie je
         internal void UpdateIndices(int oldIndex, int newIndex)
         {
             bool containsIndex = false;
@@ -271,23 +258,37 @@ namespace ExtendibleHashingFile.DataStructure
             }
         }
 
+        // todo
+        private bool RemoveBlockIfEmpty()
+        {
+            if (Count > 0)
+            {
+                return false;
+            }
+
+            int blockIndex = Directory[0];
+            Directory = new int[0];
+            _data.Blocks.RemoveAt(blockIndex);
+            return true;
+        }
+
         public void PrintDirectory()
         {
             Console.WriteLine("Directory depth " + CurrentFileDepth);
             for (int i = 0; i < Directory.Length; i++)
             {
-                byte[] data = reader.ReadBlock(Directory[i], BlockSizeInBytes); // nacitanie dat bloku
-                Block<T> b = new Block<T>(MaxBlockSize, CurrentFileDepth); // do tohto bloku chcem vkladat
-                b.FromByteArray(data);
-                var records = b.Records;
-                Console.WriteLine("Block depth " + b.Depth);
-                Console.WriteLine("index " + i + " address " + Directory[i]);
-                for (int j = 0; j < records.Length; j++)
+                var block = _data.Blocks.Read(Directory[i]);
+                var records = block.Records;
+                for (int j = 0; j < records.Count; j++)
                 {
-                    Console.Write(records[j].ToString() + " | ");
+                    Console.WriteLine(records[j].ToString());
                 }
-                Console.WriteLine();
             }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

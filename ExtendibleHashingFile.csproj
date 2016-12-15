@@ -47,9 +47,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataStructure\Block.cs" />
+    <Compile Include="DataStructure\BlockCollection.cs" />
     <Compile Include="DataStructure\CarVinRecord.cs" />
     <Compile Include="DataStructure\ExtendibleHashing.cs" />
     <Compile Include="DataStructure\IRecord.cs" />
+    <Compile Include="DataStructure\Record.cs" />
+    <Compile Include="DataStructure\FileData.cs" />
     <Compile Include="DataStructure\TestClass.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
