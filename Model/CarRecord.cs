@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Model
 {
-    public class CarRecord
+    public class CarRecord : SerializationHelper<CarRecord>
     {
         public string Ecv { get; private set; } // 7
         public string Vin { get; private set; }
@@ -38,27 +39,24 @@ namespace ExtendibleHashingFile.Model
         {
             return Ecv.GetHashCode();
         }
-    }
 
-    public sealed class CarRecordSerializer : SerializationHelper<CarRecord>
-    {
         public override int BlockSize
         {
             get { return 7 + 17 + 4 + 4 + 1 + 8 + 8; }
         }
 
-        protected override void Serialize(CarRecord value, BinaryWriter writer)
+        public override void Serialize(CarRecord data, BinaryWriter writer)
         {
-            writer.Write(SerializeASCIIStringBytes(value.Ecv, 7));
-            writer.Write(SerializeASCIIStringBytes(value.Vin, 17));
-            writer.Write(value.NumOfWheels);
-            writer.Write(value.Weight);
-            writer.Write(value.IsStolen);
-            writer.Write(value.EndOfStk.ToBinary());
-            writer.Write(value.EndOfEk.ToBinary());
+            writer.Write(SerializeASCIIStringBytes(data.Ecv, 7));
+            writer.Write(SerializeASCIIStringBytes(data.Vin, 17));
+            writer.Write(data.NumOfWheels);
+            writer.Write(data.Weight);
+            writer.Write(data.IsStolen);
+            writer.Write(data.EndOfStk.ToBinary());
+            writer.Write(data.EndOfEk.ToBinary());
         }
 
-        protected override CarRecord Deserialize(BinaryReader reader)
+        public override CarRecord Deserialize(BinaryReader reader)
         {
             return new CarRecord
             {
@@ -72,4 +70,6 @@ namespace ExtendibleHashingFile.Model
             };
         }
     }
+
+    
 }
