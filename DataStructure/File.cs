@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ExtendibleHashingFile.DataStructure
 {
-    public class Table<T>
+    public class File<T>
     {
         //public int RecordCount { get; private set; }
         //public string FileName { get; private set; }
@@ -19,7 +19,7 @@ namespace ExtendibleHashingFile.DataStructure
         public int Count { get; private set; }
         private readonly FileData<T> _data;
 
-        public Table(FileData<T> data)
+        public File(FileData<T> data)
         {
             _data = data;
             
@@ -31,7 +31,7 @@ namespace ExtendibleHashingFile.DataStructure
             //writer.Write(0, b1.ToByteArray());
         }
 
-        public Table(BinaryReader reader, FileData<T> data, int bucketsCount)
+        public File(BinaryReader reader, FileData<T> data, int bucketsCount)
         {
             _data = data;
 
@@ -193,13 +193,13 @@ namespace ExtendibleHashingFile.DataStructure
                 otherBlockReferenceIndex -= blockReferences;
             }
 
-            int otherBucketIndex = Directory[otherBlockReferenceIndex];
-            if (Directory[otherBlockReferenceIndex + blockReferences/2] != otherBucketIndex)
+            int otherBlockIndex = Directory[otherBlockReferenceIndex];
+            if (Directory[otherBlockReferenceIndex + blockReferences/2] != otherBlockIndex)
             {
                 return false; // No sibling block
             }
 
-            var otherBlock = _data.Blocks.Read(otherBucketIndex);
+            var otherBlock = _data.Blocks.Read(otherBlockIndex);
             if (block.Records.Count + otherBlock.Records.Count > _data.MaxSiblingMergeBlockValues)
             {
                 return false;
@@ -214,7 +214,7 @@ namespace ExtendibleHashingFile.DataStructure
             }
 
             _data.Blocks.Write(newBlock, info.BlockIndex);
-            _data.Blocks.RemoveAt(otherBucketIndex);
+            _data.Blocks.RemoveAt(otherBlockIndex);
 
             block = newBlock;
             return true;
@@ -243,8 +243,8 @@ namespace ExtendibleHashingFile.DataStructure
 
             foreach (var record in blockToSplit.Records)
             {
-                bool inFirstBucket = (GetBlockIndexIndex(record.Hash, newDepth) & 1) == 0;
-                (inFirstBucket ? newBlock1 : newBlock2).Records.Add(record);
+                bool inFirstBlock = (GetBlockIndexIndex(record.Hash, newDepth) & 1) == 0;
+                (inFirstBlock ? newBlock1 : newBlock2).Records.Add(record);
             }
 
             // zapis
@@ -325,8 +325,8 @@ namespace ExtendibleHashingFile.DataStructure
             if (Contains(record))
             {
                 var info = GetRecordInfo(record);
-                var bucket = _data.Blocks.Read(info.BlockIndex);
-                var found = bucket.Records[bucket.IndexOf(info.Hash, record)];
+                var block = _data.Blocks.Read(info.BlockIndex);
+                var found = block.Records[block.IndexOf(info.Hash, record)];
                 return found.ToString();
             }
             return "Record not found";
@@ -388,7 +388,6 @@ namespace ExtendibleHashingFile.DataStructure
             }
         }
 
-        // todo
         public bool RemoveBlockIfEmpty()
         {
             if (Count > 0)
@@ -402,6 +401,7 @@ namespace ExtendibleHashingFile.DataStructure
             return true;
         }
 
+        // hlupe
         public void PrintDirectory()
         {
             Console.WriteLine("Directory depth " + CurrentFileDepth);
@@ -425,11 +425,5 @@ namespace ExtendibleHashingFile.DataStructure
                 writer.Write(index);
         }
 
-
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

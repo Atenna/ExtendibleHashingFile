@@ -54,7 +54,7 @@ namespace ExtendibleHashingFile.DataStructure
             return true;
         }
 
-        // !TODO WTF
+        // ! todo pozriet
         public bool TryGetEqual(int hash, T data, out T existingValue)
         {
             int index = IndexOf(hash, data);
@@ -92,12 +92,16 @@ namespace ExtendibleHashingFile.DataStructure
             writer.Write(Depth);
             writer.Write(Records.Count);
             foreach (var hashedValue in Records)
+            {
                 writer.Write(hashedValue.Hash);
+            }
             foreach (var hashedValue in Records)
             {
                 var valueBytes = valueSerializer.Serialize(hashedValue.Data);
                 if (valueBytes.Length != valueBytesCount)
+                {
                     throw new InvalidOperationException("Unexpected Data bytes count.");
+                }
                 writer.Write(valueBytes);
             }
         }
@@ -112,11 +116,15 @@ namespace ExtendibleHashingFile.DataStructure
 
             int count = reader.ReadInt32();
             if (count < 0 || count > maxValues)
+            {
                 throw new IOException();
+            }
 
             int[] hashes = new int[count];
             for (int i = 0; i < count; ++i)
+            {
                 hashes[i] = reader.ReadInt32();
+            }
 
             Records = new List<Record<T>>(count);
             for (int i = 0; i < count; ++i)
@@ -130,7 +138,9 @@ namespace ExtendibleHashingFile.DataStructure
         {
             int depth = reader.ReadInt32();
             if (depth < 0 || depth > ExtendibleHashSet<T>.GlobalMaxDepth)
+            {
                 throw new IOException();
+            }
 
             return depth;
         }

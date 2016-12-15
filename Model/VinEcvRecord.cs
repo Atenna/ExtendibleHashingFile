@@ -3,7 +3,7 @@ using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Model
 {
-    public struct VinEcvRecord
+    public class VinEcvRecord
     {
         public string Vin { get; set; } // max 17
         public string Ecv { get; set; } // max 7
@@ -11,7 +11,9 @@ namespace ExtendibleHashingFile.Model
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(VinEcvRecord))
+            {
                 return false;
+            }
 
             var other = (VinEcvRecord)obj;
 

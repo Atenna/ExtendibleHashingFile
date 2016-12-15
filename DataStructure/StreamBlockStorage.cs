@@ -9,22 +9,26 @@ namespace ExtendibleHashingFile.DataStructure
 {
     public class StreamBlockStorage<T> : IBlockStorage<T>
     {
-        readonly Stream _stream;
-        readonly BinaryReader _reader;
-        readonly BinaryWriter _writer;
-        readonly int _maxValues, _valueBytes, _bucketBytes;
-        readonly IBlockSerializer<T> _valueSerializer;
-        readonly Action<int, int> _updateIndices;
-        int _blocksCount;
+        private readonly Stream _stream;
+        private readonly BinaryReader _reader;
+        private readonly BinaryWriter _writer;
+        private readonly int _maxValues, _valueBytes, _bucketBytes;
+        private readonly IBlockSerializer<T> _valueSerializer;
+        private readonly Action<int, int> _updateIndices; // delegat
+        private int _blocksCount;
 
+        // Stream pre reader alebo writer - najde a nastavi poziciu zaciatku bloku
         void SeekStream(int index)
         {
             if (index < 0 || index >= _blocksCount)
+            {
                 throw new InvalidOperationException();
+            }
 
             _stream.Seek((long)index * _bucketBytes, SeekOrigin.Begin);
         }
 
+        // podla poctu blokov
         void UpdateStreamLength()
         {
             _stream.SetLength((long)_blocksCount * _bucketBytes);
@@ -33,6 +37,7 @@ namespace ExtendibleHashingFile.DataStructure
 
         public int Count { get { return _blocksCount; } }
 
+        // cita pole bajtov, vracia novy blok
         public Block<T> Read(int index)
         {
             SeekStream(index);
@@ -49,8 +54,7 @@ namespace ExtendibleHashingFile.DataStructure
         public void Write(Block<T> block, int index)
         {
             SeekStream(index);
-            block.SerializeTo(_writer, _valueSerializer,
-                valueBytesCount: _valueBytes);
+            block.SerializeTo(_writer, _valueSerializer, valueBytesCount: _valueBytes);
         }
 
         public int Add(Block<T> block)
@@ -68,7 +72,7 @@ namespace ExtendibleHashingFile.DataStructure
             if (index != lastIndex)
             {
                 SeekStream(lastIndex);
-                // TODO: No need to read free block slots here.
+                // TODO: No need to read free block slots here..
                 byte[] bucketBytes = _reader.ReadBytes(_bucketBytes);
                 SeekStream(index);
                 _writer.Write(bucketBytes);
@@ -78,7 +82,9 @@ namespace ExtendibleHashingFile.DataStructure
             UpdateStreamLength();
 
             if (index != lastIndex)
+            {
                 _updateIndices(lastIndex, index);
+            }
         }
 
         internal StreamBlockStorage(Stream stream,
@@ -99,8 +105,10 @@ namespace ExtendibleHashingFile.DataStructure
             _valueBytes = valueSerializer.BlockSize;
             _bucketBytes = Block<T>.GetSerializedBytesCount(_valueBytes, maxBlockValues);
 
-            if (stream.Length != (long)blocksCount * _bucketBytes)
+            if (stream.Length != (long) blocksCount*_bucketBytes)
+            {
                 throw new IOException();
+            }
         }
     }
 }

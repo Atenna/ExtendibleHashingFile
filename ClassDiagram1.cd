@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ExtendibleHashingFile.DataStructure.Block&lt;T&gt;" Collapsed="true">
+    <Position X="9.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IEBAAAgAAAABAAAAAAAABAAACAAIAAAgAAAAAAAQAAA=</HashCode>
+      <FileName>DataStructure\Block.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.BlockCollection&lt;T&gt;" Collapsed="true">
+    <Position X="11.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAAABAAgACAAAAAACAAAAAECgAA=</HashCode>
+      <FileName>DataStructure\BlockCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.ExtendibleHashSet&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.25" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAIAEAgAACAFAAAAAIAABAAAQAAAAAcAABAAAEAQBQA=</HashCode>
+      <FileName>DataStructure\ExtendibleHashSet.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.File&lt;T&gt;" Collapsed="true">
+    <Position X="13.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EIICgBgEBDAEAAGAAAAABAQAAAAAAAgQAAACAAAQAQA=</HashCode>
+      <FileName>DataStructure\File.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.FileData&lt;T&gt;" Collapsed="true">
+    <Position X="15" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAIAAAAAAAgAAAAACABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\FileData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.Record&lt;T&gt;" Collapsed="true">
+    <Position X="13.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAEAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Record.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.StreamBlockStorage&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.25" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ACMAAAAQAAAAAAEAAIAAAAQgCAAQAAEACQAAAAEAAJg=</HashCode>
+      <FileName>DataStructure\StreamBlockStorage.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtendibleHashingFile.DataStructure.SerializationHelper&lt;T&gt;" Collapsed="true">
+    <Position X="3.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAAAAAAAACBAAAAAAAAAACBAAAA=</HashCode>
+      <FileName>Services\SerializationHelper.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExtendibleHashingFile.Form1" Collapsed="true">
+    <Position X="9.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAQAAAAACAAEBAgAAiAAgACAiACAAAAAABCAAAEAAA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Program" Collapsed="true">
+    <Position X="7.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.CarRecord" Collapsed="true">
+    <Position X="13.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BQAAAAAAAAAAAAAAgIABAAAAACAAAIAIAAAAAgAAAAA=</HashCode>
+      <FileName>Model\CarRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.CarRecordSerializer" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Model\CarRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.DriverRecord" Collapsed="true">
+    <Position X="9.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACEAAAAAAAAAAAgAAAAAQABAAAAIAAAACEAAAAAAA=</HashCode>
+      <FileName>Model\DriverRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.DriverRecordSerializer" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Model\DriverRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.TestClass" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAIAAAAgAQEgIAAAAAAACBAABAAAAAAACAAAAA=</HashCode>
+      <FileName>Model\TestClass.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.VinEcvRecordSerializer" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Model\VinEcvRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Model.Database" Collapsed="true">
+    <Position X="15" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RAAEAAAIACAAEAAAAAAAAgEAIAwAAIAAAAAAIQAAhAA=</HashCode>
+      <FileName>Services\Database.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Properties.Resources" Collapsed="true">
+    <Position X="15" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtendibleHashingFile.Properties.Settings" Collapsed="true">
+    <Position X="9.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="ExtendibleHashingFile.Model.VinEcvRecord" Collapsed="true">
+    <Position X="9.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAgIAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\VinEcvRecord.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="ExtendibleHashingFile.DataStructure.IBlockStorage&lt;T&gt;" Collapsed="true">
+    <Position X="11.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAAAAAQgCAAAAAAACAAAAAEAAAA=</HashCode>
+      <FileName>DataStructure\IBlockStorage.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExtendibleHashingFile.DataStructure.IBlockSerializer&lt;T&gt;" Collapsed="true">
+    <Position X="9.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Services\IBlockSerializer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

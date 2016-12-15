@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using PoliceSystem;
 
 namespace ExtendibleHashingFile
 {
@@ -13,9 +14,7 @@ namespace ExtendibleHashingFile
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new MainForm());
         }
-
-        
     }
 }

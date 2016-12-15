@@ -18,7 +18,7 @@ namespace ExtendibleHashingFile.DataStructure
         readonly FileStream _blockFileStream, _indexFileStream;
         readonly IBlockStorage<T> _blockStorage;
         readonly FileData<T> _tableContext;
-        readonly List<Table<T>> _tables = new List<Table<T>>();
+        readonly List<File<T>> _tables = new List<File<T>>();
 
         public static bool ExtendibleHashSetExists(string dataFilePath)
         {
@@ -33,7 +33,9 @@ namespace ExtendibleHashingFile.DataStructure
                 maxSiblingMergeBlockValues < 0 ||
                 maxTableDepth <= 0 ||
                 maxUnusedTableDepth < 0)
+            {
                 throw new InvalidOperationException();
+            }
 
             if (maxSiblingMergeBlockValues > maxBlockValues)
                 throw new InvalidOperationException();
@@ -76,7 +78,7 @@ namespace ExtendibleHashingFile.DataStructure
 
             var writer = new BinaryWriter(_indexFileStream);
 
-            // Table context
+            // File context
             writer.Write(_tableContext.MaxBlockSize);
             writer.Write(_tableContext.MaxSiblingMergeBlockValues);
             writer.Write(_tableContext.MaxDepth);
@@ -91,7 +93,9 @@ namespace ExtendibleHashingFile.DataStructure
             // Tables
             writer.Write(_tables.Count);
             foreach (var table in _tables)
+            {
                 table.SerializeTo(writer);
+            }
 
             _indexFileStream.SetLength(_indexFileStream.Position);
         }
@@ -119,7 +123,7 @@ namespace ExtendibleHashingFile.DataStructure
 
             var indexReader = new BinaryReader(_indexFileStream);
 
-            // Table context
+            // File context
 
             int maxBucketValues = indexReader.ReadInt32();
             int maxSiblingMergeBucketValues = indexReader.ReadInt32();
@@ -130,16 +134,22 @@ namespace ExtendibleHashingFile.DataStructure
                 maxSiblingMergeBucketValues < 0 ||
                 maxTableDepth <= 0 ||
                 maxUnusedTableDepth < 0)
+            {
                 throw new IOException();
+            }
 
             if (maxSiblingMergeBucketValues > maxBucketValues)
+            {
                 throw new IOException();
+            }
 
             // Block storage info
 
             int blocksCount = indexReader.ReadInt32();
             if (blocksCount < 0)
+            {
                 throw new IOException();
+            }
 
             _blockStorage = new StreamBlockStorage<T>(
                 _blockFileStream,
@@ -165,14 +175,18 @@ namespace ExtendibleHashingFile.DataStructure
 
             int tablesCount = indexReader.ReadInt32();
             if (tablesCount < 0)
+            {
                 throw new IOException();
+            }
 
             if (tablesCount == 0 ? blocksCount > 0 : blocksCount == 0)
+            {
                 throw new IOException();
+            }
 
             for (int i = 0; i < tablesCount; ++i)
             {
-                _tables.Add(new Table<T>(indexReader, _tableContext, blocksCount));
+                _tables.Add(new File<T>(indexReader, _tableContext, blocksCount));
             }
         }
 
@@ -201,7 +215,9 @@ namespace ExtendibleHashingFile.DataStructure
             foreach (var table in _tables)
             {
                 if (table.TryGetEqual(hash, value, out existingValue))
+                {
                     return true;
+                }
             }
 
             existingValue = default(T);
@@ -215,19 +231,23 @@ namespace ExtendibleHashingFile.DataStructure
             foreach (var table in _tables)
             {
                 var res = table.Add(hash, value, updateIfExists);
-                if (res != Table<T>.AddResult.NotAdded)
-                    return res == Table<T>.AddResult.Added;
+                if (res != File<T>.AddResult.NotAdded)
+                {
+                    return res == File<T>.AddResult.Added;
+                }
             }
 
-            var newTable = new Table<T>(_tableContext);
+            var newTable = new File<T>(_tableContext);
             _tables.Add(newTable);
-            return newTable.Add(hash, value, updateIfExists) == Table<T>.AddResult.Added;
+            return newTable.Add(hash, value, updateIfExists) == File<T>.AddResult.Added;
         }
 
         public void Remove(T value)
         {
             if (!TryRemove(value))
+            {
                 throw new InvalidOperationException();
+            }
         }
 
         public bool TryRemove(T value)
