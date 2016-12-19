@@ -31,6 +31,12 @@ namespace ExtendibleHashingFile.Model
             return Id == other.Id;
         }
 
+        public override string ToString()
+        {
+            return Name + " " + Surname + ", valid until: " + ValidUntil + ", allowed to drive: " +
+                   AllowedToDrive.ToString();
+        }
+
         public override int GetHashCode()
         {
             return Id.GetHashCode();

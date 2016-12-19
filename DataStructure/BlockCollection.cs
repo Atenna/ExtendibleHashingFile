@@ -14,27 +14,27 @@ namespace ExtendibleHashingFile.DataStructure
             return _storage.Read(index);
         }
 
-        public void Write(Block<T> block, int index)
+        private void Write(Block<T> block, int index)
         {
             --_blocksWithDepths[_storage.ReadDepth(index)];
             _storage.Write(block, index);
             ++_blocksWithDepths[block.Depth];
         }
 
-        public int Add(Block<T> block)
+        private int Add(Block<T> block)
         {
             int newIndex = _storage.Add(block);
             ++_blocksWithDepths[block.Depth];
             return newIndex;
         }
 
-        public void RemoveAt(int index)
+        private void RemoveAt(int index)
         {
             --_blocksWithDepths[_storage.ReadDepth(index)];
             _storage.RemoveAt(index);
         }
 
-        public int MaxBlockDepth
+        private int MaxBlockDepth
         {
             get
             {

@@ -10,15 +10,13 @@ namespace ExtendibleHashingFile.DataStructure
 {
     public class ExtendibleHashSet<T> : IDisposable
     {
-        public const int GlobalMaxDepth = 30;
-
-        const string IndexFilePostfix = ".index.data";
-        const string BlockFilePostfix = ".block.data";
+        private const string IndexFilePostfix = ".index.data";
+        private const string BlockFilePostfix = ".block.data";
 
         readonly FileStream _blockFileStream, _indexFileStream;
         readonly IBlockStorage<T> _blockStorage;
         readonly FileData<T> _tableContext;
-        readonly List<File<T>> _tables = new List<File<T>>();
+        readonly List<Table<T>> _tables = new List<Table<T>>();
 
         public static bool ExtendibleHashSetExists(string dataFilePath)
         {
@@ -62,6 +60,7 @@ namespace ExtendibleHashingFile.DataStructure
                 UpdateIndices,
                 blocksCount: 0,
                 maxBlockValues: maxBlockValues);
+
             _tableContext = new FileData<T>
             (
                 new BlockCollection<T>(_blockStorage),
@@ -72,13 +71,17 @@ namespace ExtendibleHashingFile.DataStructure
             );
         }
 
-        void SerializeIndexToStream()
+        /// <summary>
+        /// Ulozi do suboru directory index
+        /// Velkost blokov, hlbku, "volnu" hlbku
+        /// </summary>
+        private void SerializeIndexToStream()
         {
             _indexFileStream.Position = 0;
 
             var writer = new BinaryWriter(_indexFileStream);
 
-            // File context
+            // Table context
             writer.Write(_tableContext.MaxBlockSize);
             writer.Write(_tableContext.MaxSiblingMergeBlockValues);
             writer.Write(_tableContext.MaxDepth);
@@ -100,7 +103,12 @@ namespace ExtendibleHashingFile.DataStructure
             _indexFileStream.SetLength(_indexFileStream.Position);
         }
 
-        // Deserialize constructor
+        /// <summary>
+        /// Nacitanie dat o tabulkach a indexe zo suborov
+        /// Deserializacny konstruktor
+        /// </summary>
+        /// <param name="dataFilePath"></param>
+        /// <param name="valueSerializer"></param>
         public ExtendibleHashSet(
             string dataFilePath,
             IBlockSerializer<T> valueSerializer)
@@ -123,7 +131,7 @@ namespace ExtendibleHashingFile.DataStructure
 
             var indexReader = new BinaryReader(_indexFileStream);
 
-            // File context
+            // Table context
 
             int maxBucketValues = indexReader.ReadInt32();
             int maxSiblingMergeBucketValues = indexReader.ReadInt32();
@@ -186,7 +194,7 @@ namespace ExtendibleHashingFile.DataStructure
 
             for (int i = 0; i < tablesCount; ++i)
             {
-                _tables.Add(new File<T>(indexReader, _tableContext, blocksCount));
+                _tables.Add(new Table<T>(indexReader, _tableContext, blocksCount));
             }
         }
 
@@ -197,7 +205,7 @@ namespace ExtendibleHashingFile.DataStructure
             _indexFileStream.Close();
         }
 
-        void UpdateIndices(int oldIndex, int newIndex)
+        private void UpdateIndices(int oldIndex, int newIndex)
         {
             _tables.ForEach(table => table.UpdateIndices(oldIndex, newIndex));
         }
@@ -205,12 +213,12 @@ namespace ExtendibleHashingFile.DataStructure
         public bool Contains(T value)
         {
             int hash = value.GetHashCode();
-            return _tables.Any(f => f.Contains(value));
+            return _tables.Any(f => f.Contains(hash, value));
         }
 
         public bool TryGetEqual(T value, out T existingValue)
         {
-            int hash = value.GetHashCode();
+            var hash = value.GetHashCode();
 
             foreach (var table in _tables)
             {
@@ -224,22 +232,30 @@ namespace ExtendibleHashingFile.DataStructure
             return false;
         }
 
+        /// <summary>
+        /// Priva data do hlavnej tabulky alebo preplnujuceho bloku
+        /// resp. vytvori novy
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="updateIfExists"></param>
+        /// <returns></returns>
         public bool Add(T value, bool updateIfExists)
         {
-            int hash = value.GetHashCode();
+            var hash = value.GetHashCode();
 
             foreach (var table in _tables)
             {
                 var res = table.Add(hash, value, updateIfExists);
-                if (res != File<T>.AddResult.NotAdded)
+                if (res != Table<T>.AddResult.NotAdded)
                 {
-                    return res == File<T>.AddResult.Added;
+                    // bolo miesto v preplnovacich blokoch alebo hlavnej tabulke
+                    return res == Table<T>.AddResult.Added;
                 }
             }
 
-            var newTable = new File<T>(_tableContext);
+            var newTable = new Table<T>(_tableContext);
             _tables.Add(newTable);
-            return newTable.Add(hash, value, updateIfExists) == File<T>.AddResult.Added;
+            return newTable.Add(hash, value, updateIfExists) == Table<T>.AddResult.Added;
         }
 
         public void Remove(T value)
@@ -258,7 +274,7 @@ namespace ExtendibleHashingFile.DataStructure
 
         public bool TryRemove(T value, out T existingValue)
         {
-            int hash = value.GetHashCode();
+            var hash = value.GetHashCode();
 
             for (int i = 0; i < _tables.Count; ++i)
             {

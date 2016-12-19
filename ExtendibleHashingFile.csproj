@@ -49,7 +49,7 @@
     <Compile Include="DataStructure\Block.cs" />
     <Compile Include="DataStructure\BlockCollection.cs" />
     <Compile Include="DataStructure\StreamBlockStorage.cs" />
-    <Compile Include="DataStructure\File.cs" />
+    <Compile Include="DataStructure\Table.cs" />
     <Compile Include="DataStructure\ExtendibleHashSet.cs" />
     <Compile Include="DataStructure\IBlockStorage.cs" />
     <Compile Include="Services\IBlockSerializer.cs" />

@@ -21,8 +21,16 @@ namespace ExtendibleHashingFile.Model
             Ecv = "";
             Vin = "";
             NumOfWheels = 4;
+            IsStolen = false;
+            Weight = 30000;
             EndOfStk = DateTime.Today;
             EndOfEk = DateTime.Today;
+        }
+
+        public override String ToString()
+        {
+            return "Ecv: " + Ecv + ", Vin: " + Vin + ", End of stk: " + EndOfStk.ToString("dd-MM-yyyy") + ", End of ek: " +
+                   EndOfEk.ToString("dd-MM-yyyy");
         }
 
         public override bool Equals(object obj)

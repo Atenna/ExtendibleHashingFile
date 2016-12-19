@@ -24,8 +24,9 @@ namespace PoliceSystem
         public MainForm()
         {
             InitializeComponent();
-
             database = new Database(Path.Combine(Application.StartupPath, dataBaseFileName));
+
+            database.GenerateData();
 
             pgdCar.SelectedObject = selectedCar = new CarRecord();
             pgdDriver.SelectedObject = selectedDriver = new DriverRecord();

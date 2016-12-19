@@ -9,22 +9,15 @@ namespace ExtendibleHashingFile.DataStructure
         /// <summary>
         /// Hlbka bloku
         /// </summary>
-        public int Depth
-        {
-            get; private set;
-            
-        }
+        public int Depth{ get; private set; }
         /// <summary>
         /// Zaznamy ulozene v bloku
         /// </summary>
-        public List<Record<T>> Records
-        {
-            get; private set; 
-        }
+        public List<Record<T>> Records { get; private set; }
 
         public Block(int depth)
         {
-            Depth = depth;
+            this.Depth = depth;
             Records = new List<Record<T>>();
         }
 

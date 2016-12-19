@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Model
@@ -82,6 +83,7 @@ namespace ExtendibleHashingFile.Model
             if (existingCarVin != null)
             {
                 selectedCar.Vin = existingCarVin;
+                //existingCarVin = selectedCar.Vin;
                 carExists = true;
             }
             else
@@ -97,20 +99,25 @@ namespace ExtendibleHashingFile.Model
             if (!carExists)
             {
                 bool addedVinEcv = EcvsByVin.Add(new VinEcvRecord { Vin = selectedCar.Vin, Ecv = selectedCar.Ecv }, updateIfExists: false);
-                Debug.Assert(addedVinEcv);
+                //Console.WriteLine("Nenaslo take auto");
+                //Debug.Assert(addedVinEcv);
             }
 
             bool added = CarsByEcv.Add(selectedCar, updateIfExists: true);
             Debug.Assert(added == !carExists);
+            Console.WriteLine("Pridane do ECV-VIN tabulky");
             return added;
         }
 
+        // toto >:(
         public bool TryDeleteCarByVin(string vin)
         {
             VinEcvRecord vinEcv;
             if (EcvsByVin.TryRemove(new VinEcvRecord { Vin = vin }, out vinEcv))
             {
-                bool removed = CarsByEcv.TryRemove(new CarRecord { Ecv = vinEcv.Ecv });
+                var r = new CarRecord();
+                r.Ecv = vinEcv.Ecv;
+                bool removed = CarsByEcv.TryRemove(r);
                 Debug.Assert(removed);
                 return true;
             }
@@ -146,6 +153,81 @@ namespace ExtendibleHashingFile.Model
         public bool TryDeleteDriver(int id)
         {
             return Drivers.TryRemove(new DriverRecord { Id = id });
+        }
+
+        private enum Names
+        {
+            Andreas, Peter, Raphael, Michael, Thobias, Sebastian, Bello, Anton, Ricco, Marek,
+            Martina, Dominika, Ema, Dana, Petra, Klara, Denisa, Laura, Veronika, Nikoletta, Slavka
+        }
+
+        private enum Surnames
+        {
+            Benz, Gasiak, Hiesgen, Mruskovic, Szandor, Thun, Belica, Lieskovsky, Greksak, Franko,
+            Bolibruch, Ivanis, Gaspar, Zidzik, Michalko, Harcek, Funtik, Tamaiero, Klapita, Ivanec, Kysela
+        }
+
+        public void GenerateDriverData()
+        {
+            Console.WriteLine("__________DRIVER DATA___________");
+            Random rnd = new Random();
+            Array names = Enum.GetValues(typeof(Names));
+            Array surnames = Enum.GetValues(typeof(Surnames));
+            for (int i = 0; i < 100; i++)
+            {
+                // name, surname, id, valid until, allowed to drive, count
+                var name = names.GetValue(rnd.Next(20));
+                var surname = surnames.GetValue(rnd.Next(20));
+                var r = new DriverRecord();
+                r.Id = i;
+                r.Name = name.ToString();
+                r.Surname = surname.ToString();
+                r.ValidUntil = DateTime.Today.AddDays(rnd.Next(300));
+                r.AllowedToDrive = true;
+                r.InfractionCount = rnd.Next(2);
+                Console.WriteLine(r.ToString());
+                AddOrUpdateDriver(r);
+            }
+        }
+
+        private enum Prefixes //14
+        {
+            ZA, PD, PO, BB, TN, TR, KE, NR, NO, TT, BA, KS, VT, MI
+        }
+
+        private enum Postfexes //14
+        {
+            AB, BH, DS, KL, WE, RT, XS, OL, PL, FE, IL, HG, AC, AD
+        }
+
+        public void GenerateCarData()
+        {
+            Console.WriteLine("__________CAR DATA___________");
+            Random rnd = new Random();
+            Array prefixes = Enum.GetValues(typeof(Prefixes));
+            Array postfixes = Enum.GetValues(typeof(Postfexes));
+            for (int i = 0; i < 100; i++)
+            {
+                // 
+                var prefix = prefixes.GetValue(rnd.Next(13));
+                var postfix = postfixes.GetValue(rnd.Next(13));
+                var r = new CarRecord();
+                r.Ecv = prefix + rnd.Next(100, 999).ToString() + postfix;
+                r.Vin = prefix + rnd.Next(100, 999).ToString() + postfix;
+                r.NumOfWheels = 4;
+                r.IsStolen = false;
+                r.EndOfEk = DateTime.Today.AddDays(rnd.Next(300));
+                r.EndOfStk = DateTime.Today.AddDays(rnd.Next(300));
+
+                Console.WriteLine(r.ToString());
+                AddOrUpdateCar(r);
+            }
+        }
+
+        public void GenerateData()
+        {
+            GenerateCarData();
+            GenerateDriverData();
         }
     }
 }
