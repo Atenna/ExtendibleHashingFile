@@ -61,6 +61,10 @@ namespace ExtendibleHashingFile.Model
                 if (!hasDrivers)
                     DataGenerator.GenerateDriverData(this, count: 100, path: driversPath + ".txt");
             }
+
+           // Drivers.DebugPrint();
+            //CarsByEcv.DebugPrint();
+            //EcvsByVin.DebugPrint();
         }
 
         public void Dispose()
@@ -90,19 +94,42 @@ namespace ExtendibleHashingFile.Model
         {
             bool carExists = false;
             var existingCarVin = TryGetCarByEcv(selectedCar.Ecv)?.Vin;
+            VinEcvRecord vinEcv = null;
             if (existingCarVin != null)
             {
-                selectedCar.Vin = existingCarVin;
+                //selectedCar.Vin = existingCarVin;
                 //existingCarVin = selectedCar.Vin;
                 carExists = true;
             }
             else
             {
-                VinEcvRecord vinEcv;
                 if (EcvsByVin.TryGetEqual(new VinEcvRecord { Vin = selectedCar.Vin }, out vinEcv))
                 {
-                    selectedCar.Ecv = vinEcv.Ecv;
+                    //selectedCar.Ecv = vinEcv.Ecv;
                     carExists = true;
+                }
+            }
+
+            // ak menim klucove atributy
+            if (carExists)
+            {
+                if (existingCarVin!= null && !selectedCar.Vin.Equals(existingCarVin))
+                {
+                    // ak menim vin a najdem auto podla ecv
+                    TryDeleteCarByEcv(selectedCar.Ecv);
+                    // zmazem auto podla ecv
+                    // pridam nove auto
+
+                    carExists = false;
+                }
+                else if (vinEcv != null && !selectedCar.Ecv.Equals(vinEcv.Ecv))
+                {
+                    // ak menim ecv a najdem auto podla vin
+                    TryDeleteCarByVin(selectedCar.Vin);
+                    // zmazem auto podla vin
+                    // pridam nove auto
+
+                    carExists = false;
                 }
             }
 
@@ -110,12 +137,12 @@ namespace ExtendibleHashingFile.Model
             {
                 bool addedVinEcv = EcvsByVin.Add(new VinEcvRecord { Vin = selectedCar.Vin, Ecv = selectedCar.Ecv }, updateIfExists: false);
                 //Console.WriteLine("Nenaslo take auto");
-                //Debug.Assert(addedVinEcv);
+                Debug.Assert(addedVinEcv);
             }
 
             bool added = CarsByEcv.Add(selectedCar, updateIfExists: true);
             Debug.Assert(added == !carExists);
-            Console.WriteLine("Pridane do ECV-VIN tabulky");
+            //Console.WriteLine("Pridane do ECV-VIN tabulky");
             return added;
         }
 

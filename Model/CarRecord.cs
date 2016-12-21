@@ -50,7 +50,7 @@ namespace ExtendibleHashingFile.Model
         }
     }
 
-    public sealed class CarRecordSerializer : SerializationHelper<CarRecord>
+    public sealed class CarRecordSerializer : BlockSerializer<CarRecord>
     {
         public override int BlockSize
         {
