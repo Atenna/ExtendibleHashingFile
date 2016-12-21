@@ -5,7 +5,7 @@ using ExtendibleHashingFile.DataStructure;
 
 namespace ExtendibleHashingFile.Services
 {
-    public abstract class SerializationHelper<T> : IBlockSerializer<T>
+    public abstract class BlockSerializer<T> : IBlockSerializer<T>
     {
         public abstract int BlockSize { get; }
         public abstract void Serialize(T data, BinaryWriter writer);

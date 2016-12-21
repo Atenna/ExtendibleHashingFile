@@ -146,7 +146,7 @@ namespace ExtendibleHashingFile.Model
             return added;
         }
 
-        // toto >:(
+        //
         public bool TryDeleteCarByVin(string vin)
         {
             VinEcvRecord vinEcv;

@@ -382,7 +382,7 @@ namespace ExtendibleHashingFile.DataStructure
             }
         }
 
-        private void DebugPrint()
+        public void DebugPrint()
         {
             Console.WriteLine("Table with depth = {0}", _currentFileDepth);
             for (int i = 0; i < _directory.Length; ++i)

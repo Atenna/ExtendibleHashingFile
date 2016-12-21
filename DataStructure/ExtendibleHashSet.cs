@@ -289,5 +289,13 @@ namespace ExtendibleHashingFile.DataStructure
             existingValue = default(T);
             return false;
         }
+
+        public void DebugPrint()
+        {
+            Console.WriteLine("Set with {0} table(s).", _tables.Count);
+            foreach (var table in _tables)
+                table.DebugPrint();
+            Console.WriteLine();
+        }
     }
 }

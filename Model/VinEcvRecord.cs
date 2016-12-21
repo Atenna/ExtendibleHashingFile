@@ -27,7 +27,7 @@ namespace ExtendibleHashingFile.Model
         }
     }
 
-    public sealed class VinEcvRecordSerializer : SerializationHelper<VinEcvRecord>
+    public sealed class VinEcvRecordSerializer : BlockSerializer<VinEcvRecord>
     {
         public override int BlockSize
         {

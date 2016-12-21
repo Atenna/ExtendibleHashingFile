@@ -44,7 +44,7 @@ namespace ExtendibleHashingFile.Model
         }
     }
 
-    public sealed class DriverRecordSerializer : SerializationHelper<DriverRecord>
+    public sealed class DriverRecordSerializer : BlockSerializer<DriverRecord>
     {
         public override int BlockSize
         {

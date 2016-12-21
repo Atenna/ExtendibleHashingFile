@@ -53,7 +53,7 @@ namespace ExtendibleHashingFile.Services
 
                     sw.WriteLine(r.ToString());
 
-                    Console.WriteLine(r.ToString());
+                    //Console.WriteLine(r.ToString());
 
                     db.AddOrUpdateDriver(r);
                 }
@@ -80,7 +80,7 @@ namespace ExtendibleHashingFile.Services
                     r.EndOfStk = DateTime.Today.AddDays(rnd.Next(300));
 
                     sw.WriteLine(r.ToString());
-                    Console.WriteLine(r.ToString());
+                    //Console.WriteLine(r.ToString());
                     db.AddOrUpdateCar(r);
                 }
             }

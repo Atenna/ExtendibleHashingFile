@@ -30,6 +30,7 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageCar = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -48,10 +49,18 @@
             this.label4 = new System.Windows.Forms.Label();
             this.tbxDriverId = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.tabControl1.SuspendLayout();
+            //this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.buttonTestSearch = new System.Windows.Forms.Button();
+            this.buttonTestUpdateInsert = new System.Windows.Forms.Button();
+            this.buttonTestDelete = new System.Windows.Forms.Button();
+            this.propertyGridTest = new System.Windows.Forms.PropertyGrid();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBoxTest = new System.Windows.Forms.TextBox();
+            this.labelTestId = new System.Windows.Forms.Label();
+            //this.tabControl1.SuspendLayout();
             this.tabPageCar.SuspendLayout();
             this.tabPageDriver.SuspendLayout();
+            //this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -61,6 +70,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPageCar);
             this.tabControl1.Controls.Add(this.tabPageDriver);
+            //this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -87,6 +97,18 @@
             this.tabPageCar.TabIndex = 0;
             this.tabPageCar.Text = "Car";
             this.tabPageCar.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button1.AutoSize = true;
+            this.button1.Location = new System.Drawing.Point(395, 70);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(110, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Delete by Ecv";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.OnDeleteCarByEcvButtonClick);
             // 
             // button4
             // 
@@ -136,8 +158,8 @@
             // 
             // pgdCar
             // 
-            this.pgdCar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.pgdCar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pgdCar.HelpVisible = false;
             this.pgdCar.Location = new System.Drawing.Point(19, 123);
@@ -242,8 +264,8 @@
             // 
             // pgdDriver
             // 
-            this.pgdDriver.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.pgdDriver.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pgdDriver.HelpVisible = false;
             this.pgdDriver.Location = new System.Drawing.Point(12, 77);
@@ -278,17 +300,91 @@
             this.label5.TabIndex = 10;
             this.label5.Text = "Driver Id";
             // 
-            // button1
+            // tabPage1
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.AutoSize = true;
-            this.button1.Location = new System.Drawing.Point(395, 70);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(110, 23);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Delete by Ecv";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.OnDeleteCarByEcvButtonClick);
+            //this.tabPage1.Controls.Add(this.buttonTestSearch);
+            //this.tabPage1.Controls.Add(this.buttonTestUpdateInsert);
+            //this.tabPage1.Controls.Add(this.buttonTestDelete);
+            //this.tabPage1.Controls.Add(this.propertyGridTest);
+            //this.tabPage1.Controls.Add(this.label6);
+            //this.tabPage1.Controls.Add(this.textBoxTest);
+            //this.tabPage1.Controls.Add(this.labelTestId);
+            //this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            //this.tabPage1.Name = "tabPage1";
+            //this.tabPage1.Size = new System.Drawing.Size(531, 344);
+            //this.tabPage1.TabIndex = 2;
+            //this.tabPage1.Text = "Test";
+            //this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // buttonTestSearch
+            // 
+            this.buttonTestSearch.AutoSize = true;
+            this.buttonTestSearch.Location = new System.Drawing.Point(258, 23);
+            this.buttonTestSearch.Name = "buttonTestSearch";
+            this.buttonTestSearch.Size = new System.Drawing.Size(104, 23);
+            this.buttonTestSearch.TabIndex = 23;
+            this.buttonTestSearch.Text = "Search";
+            this.buttonTestSearch.UseVisualStyleBackColor = true;
+            // 
+            // buttonTestUpdateInsert
+            // 
+            this.buttonTestUpdateInsert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTestUpdateInsert.AutoSize = true;
+            this.buttonTestUpdateInsert.Location = new System.Drawing.Point(426, 314);
+            this.buttonTestUpdateInsert.Name = "buttonTestUpdateInsert";
+            this.buttonTestUpdateInsert.Size = new System.Drawing.Size(92, 23);
+            this.buttonTestUpdateInsert.TabIndex = 22;
+            this.buttonTestUpdateInsert.Text = "Update or insert";
+            this.buttonTestUpdateInsert.UseVisualStyleBackColor = true;
+            // 
+            // buttonTestDelete
+            // 
+            this.buttonTestDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonTestDelete.AutoSize = true;
+            this.buttonTestDelete.Location = new System.Drawing.Point(406, 23);
+            this.buttonTestDelete.Name = "buttonTestDelete";
+            this.buttonTestDelete.Size = new System.Drawing.Size(75, 23);
+            this.buttonTestDelete.TabIndex = 21;
+            this.buttonTestDelete.Text = "Delete";
+            this.buttonTestDelete.UseVisualStyleBackColor = true;
+            // 
+            // propertyGridTest
+            // 
+            this.propertyGridTest.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.propertyGridTest.HelpVisible = false;
+            this.propertyGridTest.Location = new System.Drawing.Point(12, 77);
+            this.propertyGridTest.Name = "propertyGridTest";
+            this.propertyGridTest.PropertySort = System.Windows.Forms.PropertySort.Categorized;
+            this.propertyGridTest.Size = new System.Drawing.Size(506, 222);
+            this.propertyGridTest.TabIndex = 20;
+            this.propertyGridTest.ToolbarVisible = false;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 61);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(92, 13);
+            this.label6.TabIndex = 19;
+            this.label6.Text = "Driver information:";
+            // 
+            // textBoxTest
+            // 
+            this.textBoxTest.Location = new System.Drawing.Point(12, 26);
+            this.textBoxTest.Name = "textBoxTest";
+            this.textBoxTest.Size = new System.Drawing.Size(212, 20);
+            this.textBoxTest.TabIndex = 18;
+            // 
+            // labelTestId
+            // 
+            this.labelTestId.AutoSize = true;
+            this.labelTestId.Location = new System.Drawing.Point(15, 8);
+            this.labelTestId.Name = "labelTestId";
+            this.labelTestId.Size = new System.Drawing.Size(40, 13);
+            this.labelTestId.TabIndex = 17;
+            this.labelTestId.Text = "Test Id";
             // 
             // MainForm
             // 
@@ -304,6 +400,8 @@
             this.tabPageCar.PerformLayout();
             this.tabPageDriver.ResumeLayout(false);
             this.tabPageDriver.PerformLayout();
+            //this.tabPage1.ResumeLayout(false);
+            //this.tabPage1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -331,5 +429,13 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tbxDriverId;
         private System.Windows.Forms.Button button1;
+        //private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.Button buttonTestSearch;
+        private System.Windows.Forms.Button buttonTestUpdateInsert;
+        private System.Windows.Forms.Button buttonTestDelete;
+        private System.Windows.Forms.PropertyGrid propertyGridTest;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textBoxTest;
+        private System.Windows.Forms.Label labelTestId;
     }
 }

@@ -10,8 +10,11 @@ namespace PoliceSystem
         const string dataBaseFileName = "PoliceSystemDataBase";
 
         Database database;
+
         CarRecord selectedCar;
         DriverRecord selectedDriver;
+        TestClass selectedTestData;
+
         bool deleteByVin;
 
         public MainForm()
@@ -21,6 +24,8 @@ namespace PoliceSystem
 
             pgdCar.SelectedObject = selectedCar = new CarRecord();
             pgdDriver.SelectedObject = selectedDriver = new DriverRecord();
+
+            propertyGridTest.SelectedObject = selectedTestData = new TestClass();
         }
 
         // Form events

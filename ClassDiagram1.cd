@@ -51,11 +51,11 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
-  <Class Name="ExtendibleHashingFile.DataStructure.SerializationHelper&lt;T&gt;" Collapsed="true">
+  <Class Name="ExtendibleHashingFile.DataStructure.BlockSerializer&lt;T&gt;" Collapsed="true">
     <Position X="3.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAABAAAAAAAAAAAAAACBAAAAAAAAAACBAAAA=</HashCode>
-      <FileName>Services\SerializationHelper.cs</FileName>
+      <FileName>Services\BlockSerializer.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
