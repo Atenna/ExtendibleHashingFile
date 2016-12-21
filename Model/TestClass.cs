@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using ExtendibleHashingFile.DataStructure;
+using ExtendibleHashingFile.Services;
 
 namespace ExtendibleHashingFile.Model
 {

@@ -7,23 +7,23 @@ namespace ExtendibleHashingFile.DataStructure
 {
     public class Table<T>
     {
-        private const int GlobalMaxDepth = 30;
+        public const int GlobalMaxDepth = 30;
         public enum AddResult { NotAdded = 0, Added, AlreadyExists }
 
-        private readonly FileData<T> _data;
-        private int[] _directory;
+        private readonly TableData<T> _data;
+        private int[] _directory = new int[1];
         private int _currentFileDepth = 0;
         private int _count = 0;
 
-        public Table(FileData<T> data)
+        public Table(TableData<T> data)
         {
             _data = data;
-            var firstBlock = new Block<T>(_currentFileDepth);
+            var firstBlock = new Block<T>(depth: 0);
             _directory[0] = _data.Blocks.Add(firstBlock);
         }
 
         // Deserialize constructor
-        public Table(BinaryReader reader, FileData<T> data, int blocksCount)
+        public Table(BinaryReader reader, TableData<T> data, int blocksCount)
         {
             _data = data;
 

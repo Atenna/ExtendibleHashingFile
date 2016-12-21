@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace ExtendibleHashingFile.DataStructure
@@ -15,7 +12,7 @@ namespace ExtendibleHashingFile.DataStructure
 
         readonly FileStream _blockFileStream, _indexFileStream;
         readonly IBlockStorage<T> _blockStorage;
-        readonly FileData<T> _tableContext;
+        readonly TableData<T> _tableContext;
         readonly List<Table<T>> _tables = new List<Table<T>>();
 
         public static bool ExtendibleHashSetExists(string dataFilePath)
@@ -61,7 +58,7 @@ namespace ExtendibleHashingFile.DataStructure
                 blocksCount: 0,
                 maxBlockValues: maxBlockValues);
 
-            _tableContext = new FileData<T>
+            _tableContext = new TableData<T>
             (
                 new BlockCollection<T>(_blockStorage),
                 maxBlockValues: maxBlockValues,
@@ -172,7 +169,7 @@ namespace ExtendibleHashingFile.DataStructure
 
             // Tables
 
-            _tableContext = new FileData<T>
+            _tableContext = new TableData<T>
             (
                 blockCollection,
                 maxBlockValues: maxBucketValues,

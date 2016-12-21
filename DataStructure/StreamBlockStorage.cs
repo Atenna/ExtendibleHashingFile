@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExtendibleHashingFile.DataStructure
 {
@@ -12,10 +8,11 @@ namespace ExtendibleHashingFile.DataStructure
         private readonly Stream _stream;
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
-        private readonly int _maxValues, _valueBytes, _bucketBytes;
+        private readonly int _maxValues, _valueBytes, _blockBytes;
         private readonly IBlockSerializer<T> _valueSerializer;
         private readonly Action<int, int> _updateIndices; // delegat
         private int _blocksCount;
+        public int Count { get { return _blocksCount; } }
 
         // Stream pre reader alebo writer - najde a nastavi poziciu zaciatku bloku
         void SeekStream(int index)
@@ -25,17 +22,14 @@ namespace ExtendibleHashingFile.DataStructure
                 throw new InvalidOperationException();
             }
 
-            _stream.Seek((long)index * _bucketBytes, SeekOrigin.Begin);
+            _stream.Seek((long)index * _blockBytes, SeekOrigin.Begin);
         }
 
         // podla poctu blokov
         void UpdateStreamLength()
         {
-            _stream.SetLength((long)_blocksCount * _bucketBytes);
-
+            _stream.SetLength((long)_blocksCount * _blockBytes);
         }
-
-        public int Count { get { return _blocksCount; } }
 
         // cita pole bajtov, vracia novy blok
         public Block<T> Read(int index)
@@ -69,13 +63,14 @@ namespace ExtendibleHashingFile.DataStructure
         {
             int lastIndex = _blocksCount - 1;
 
+            // pokial nemaze posledny
             if (index != lastIndex)
             {
                 SeekStream(lastIndex);
-                // TODO: No need to read free block slots here..
-                byte[] bucketBytes = _reader.ReadBytes(_bucketBytes);
+                byte[] blockBytes = _reader.ReadBytes(_blockBytes);
+                // miesto mazaneho prepise poslednym
                 SeekStream(index);
-                _writer.Write(bucketBytes);
+                _writer.Write(blockBytes);
             }
 
             --_blocksCount;
@@ -103,9 +98,9 @@ namespace ExtendibleHashingFile.DataStructure
             _writer = new BinaryWriter(stream);
 
             _valueBytes = valueSerializer.BlockSize;
-            _bucketBytes = Block<T>.GetSerializedBytesCount(_valueBytes, maxBlockValues);
+            _blockBytes = Block<T>.GetSerializedBytesCount(_valueBytes, maxBlockValues);
 
-            if (stream.Length != (long) blocksCount*_bucketBytes)
+            if (stream.Length != (long) blocksCount*_blockBytes)
             {
                 throw new IOException();
             }

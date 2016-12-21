@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using ExtendibleHashingFile.DataStructure;
 
-namespace ExtendibleHashingFile.DataStructure
+namespace ExtendibleHashingFile.Services
 {
     public abstract class SerializationHelper<T> : IBlockSerializer<T>
     {
@@ -16,23 +14,25 @@ namespace ExtendibleHashingFile.DataStructure
         public byte[] Serialize(T data)
         {
             var array = new byte[BlockSize];
-            var stream = new MemoryStream(array);
-            var writer = new BinaryWriter(stream);
-
-            Serialize(data, writer);
-            System.Diagnostics.Debug.Assert(stream.Position == stream.Length);
-
+            using (var stream = new MemoryStream(array))
+            using (var writer = new BinaryWriter(stream))
+            {
+                Serialize(data, writer);
+                System.Diagnostics.Debug.Assert(stream.Position == stream.Length);
+            }
             return array;
+            // https://msdn.microsoft.com/sk-sk/library/yh598w02(v=vs.100).aspx
         }
 
         public T Deserialize(byte[] array)
         {
-            var stream = new MemoryStream(array);
-            var reader = new BinaryReader(stream);
-
-            var data = Deserialize(reader);
-            System.Diagnostics.Debug.Assert(stream.Position == stream.Length);
-            return data;
+            using (var stream = new MemoryStream(array))
+            using (var reader = new BinaryReader(stream))
+            {
+                var data = Deserialize(reader);
+                System.Diagnostics.Debug.Assert(stream.Position == stream.Length);
+                return data;
+            }
         }
 
         public static byte[] SerializeASCIIStringBytes(string str, int byteCount)

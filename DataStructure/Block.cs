@@ -130,7 +130,7 @@ namespace ExtendibleHashingFile.DataStructure
         internal static int ReadDepth(BinaryReader reader)
         {
             int depth = reader.ReadInt32();
-            if (depth < 0 || depth > ExtendibleHashSet<T>.GlobalMaxDepth)
+            if (depth < 0 || depth > Table<T>.GlobalMaxDepth)
             {
                 throw new IOException();
             }

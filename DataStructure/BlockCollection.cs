@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 namespace ExtendibleHashingFile.DataStructure
 {
@@ -14,34 +12,36 @@ namespace ExtendibleHashingFile.DataStructure
             return _storage.Read(index);
         }
 
-        private void Write(Block<T> block, int index)
+        public void Write(Block<T> block, int index)
         {
             --_blocksWithDepths[_storage.ReadDepth(index)];
             _storage.Write(block, index);
             ++_blocksWithDepths[block.Depth];
         }
 
-        private int Add(Block<T> block)
+        public int Add(Block<T> block)
         {
             int newIndex = _storage.Add(block);
             ++_blocksWithDepths[block.Depth];
             return newIndex;
         }
 
-        private void RemoveAt(int index)
+        public void RemoveAt(int index)
         {
             --_blocksWithDepths[_storage.ReadDepth(index)];
             _storage.RemoveAt(index);
         }
 
-        private int MaxBlockDepth
+        public int MaxBlockDepth
         {
             get
             {
                 for (int i = _blocksWithDepths.Length - 1; i > 0; --i)
                 {
                     if (_blocksWithDepths[i] > 0)
+                    {
                         return i;
+                    }
                 }
 
                 return 0;

@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExtendibleHashingFile.Model;
 
@@ -24,9 +17,7 @@ namespace PoliceSystem
         public MainForm()
         {
             InitializeComponent();
-            database = new Database(Path.Combine(Application.StartupPath, dataBaseFileName));
-
-            database.GenerateData();
+            database = new Database(Path.Combine(Application.StartupPath, dataBaseFileName), true);
 
             pgdCar.SelectedObject = selectedCar = new CarRecord();
             pgdDriver.SelectedObject = selectedDriver = new DriverRecord();
@@ -75,13 +66,25 @@ namespace PoliceSystem
         void OnDeleteCarByVinButtonClick(object sender, EventArgs e)
         {
             if (!database.TryDeleteCarByVin(tbxCarVin.Text))
+            {
                 ShowError("Car not found by Vin.");
+            }
+            else
+            {
+                ShowInfo("Car successfully deleted from DB.");
+            }
         }
 
         void OnDeleteCarByEcvButtonClick(object sender, EventArgs e)
         {
             if (!database.TryDeleteCarByEcv(tbxCarEcv.Text))
+            {
                 ShowError("Car not found by Ecv.");
+            }
+            else
+            {
+                ShowInfo("Car successfully deleted from DB.");
+            }
         }
 
         void OnSearchDriverButtonClick(object sender, EventArgs e)
@@ -124,10 +127,6 @@ namespace PoliceSystem
                 ShowError("Car not found.");
                 return;
             }
-
-            btnDeleteCar.Enabled = car != null;
-            btnDeleteCar.Text = car == null ? "Delete" :
-                byVin ? "Delete by Vin" : "Delete by Ecv";
 
             selectedCar = car;
             pgdCar.SelectedObject = selectedCar;

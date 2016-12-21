@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using ExtendibleHashingFile.DataStructure;
+using ExtendibleHashingFile.Services;
 
 namespace ExtendibleHashingFile.Model
 {
